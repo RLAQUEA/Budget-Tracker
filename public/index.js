@@ -54,7 +54,7 @@ function populateChart() {
   let data = reversed.map(t => {
     sum += parseInt(t.value);
     return sum;
-  });
+  }); 
 
 
   if (myChart) {

@@ -1,8 +1,10 @@
+const indexedDB = window.indexedDB || window.mozIndexedDB;
+
 let db;
 let budgetVersion;
 
 // Create a new db request for a "budget" database.
-const request = indexedDB.open('Budget-Tracker', budgetVersion || 2);
+const request = indexedDB.open('Budget-Tracker', 1);
 
 request.onupgradeneeded = function (e) {
   console.log('Upgrade needed in IndexDB');
