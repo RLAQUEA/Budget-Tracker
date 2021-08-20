@@ -5,7 +5,7 @@ fetch("/api/transaction")
   .then((response) => {
     return response.json();
   })
-  .then((data) => {
+  .then(data => {
 
     transactions = data;
 
