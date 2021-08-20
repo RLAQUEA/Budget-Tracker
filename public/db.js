@@ -8,7 +8,7 @@ const indexedDB =
   window.shimIndexedDB;
 let db;
 //Opens a new database request & creates a place for it 
-const indexedDBrequest = indexedDB.open("Budget-Tracker", 1);
+const indexedDBrequest = indexedDB.open("budget", 1);
 //Function will run once db is created
 indexedDBrequest.onsuccess = ({ target }) => {
   db = target.result;
@@ -18,13 +18,13 @@ indexedDBrequest.onsuccess = ({ target }) => {
     checkDatabase();
   }
 };
-request.onupgradeneeded = ({ target }) => {
+indexedDBrequest.onupgradeneeded = ({ target }) => {
   let db = target.result;
   //Represents pending transaction, instance of object store
   db.createObjectStore("pending", { autoIncrement: true });
 };
 // Handles errors
-request.onerror = function(event) {
+indexedDBrequest.onerror = function(event) {
   console.log("Woops! " + event.target.errorCode);
 };
 function saveRecord(log) {
@@ -59,5 +59,5 @@ function checkDatabase() {
     }
   };
 }
-// Checks to see if network is back online
+// Checks to see if network is online
 window.addEventListener("online", checkDatabase);
