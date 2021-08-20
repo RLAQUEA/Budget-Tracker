@@ -5,10 +5,8 @@ fetch("/api/transaction")
   .then((response) => {
     return response.json();
   })
-  .then(data => {
-
+  .then((data) => {
     transactions = data;
-
     populateTotal();
     populateTable();
     populateChart();
@@ -54,7 +52,7 @@ function populateChart() {
   let data = reversed.map(t => {
     sum += parseInt(t.value);
     return sum;
-  }); 
+  });
 
 
   if (myChart) {

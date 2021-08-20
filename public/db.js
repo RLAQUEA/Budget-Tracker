@@ -7,43 +7,40 @@ const indexedDB =
   window.msIndexedDB ||
   window.shimIndexedDB;
 let db;
-//request is the object that will hold our db (object)
-const request = indexedDB.open("Budget-Tracker", 1);
-//triggered on DB creation
-request.onsuccess = ({ target }) => {//target is "event.target that the change happened on"
+//Opens a new database request & creates a place for it 
+const indexedDBrequest = indexedDB.open("Budget-Tracker", 1);
+//Function will run once db is created
+indexedDBrequest.onsuccess = ({ target }) => {
   db = target.result;
   console.log(db.result)
-  // check if app is online before reading from db
-  if (navigator.onLine) {//navigator works in window object to check to see if online
+  // Checks to see if network is online
+  if (navigator.onLine) {
     checkDatabase();
   }
 };
-//after on success
-//triggered in order to make changes (object stores, indexes, keyPath)
-//3:14:00
-request.onupgradeneeded = ({ target }) => {//event.target is the target that the change happened on
+request.onupgradeneeded = ({ target }) => {
   let db = target.result;
-  //"pending" instance of a change; Name of of object store so needs to be consistent
+  //Represents pending transaction, instance of object store
   db.createObjectStore("pending", { autoIncrement: true });
 };
-//error handling
+// Handles errors
 request.onerror = function(event) {
   console.log("Woops! " + event.target.errorCode);
 };
-function saveRecord(record) {//record just means an object
-  const transaction = db.transaction(["pending"], "readwrite"); //array of object stores you want to work with, "readwrite" means crud, readonly is readonly
-  const store = transaction.objectStore("pending");// adds "pending" DB instanct to object store
-//new crud transaction is opened and adds the object to object store
-  store.add(record);
+function saveRecord(log) {
+  const transaction = db.transaction(["pending"], "readwrite");
+  const store = transaction.objectStore("pending");
+//Adds object to object store
+  store.add(log);
 }
-function checkDatabase() { ///funnels through post in index.js
+function checkDatabase() { 
   const transaction = db.transaction(["pending"], "readwrite");
   const store = transaction.objectStore("pending");
   const getAll = store.getAll();
   getAll.onsuccess = function() {
-    if (getAll.result.length > 0) {//if there are objects in pending, let's get them to our DB
-      fetch("/api/transaction/bulk", {//fetch built int all modern browsers like Ajax
-        method: "POST",//another way to make http calls
+    if (getAll.result.length > 0) {//Retrieves any pending transactions and puts them in database
+      fetch("/api/transaction/bulk", {
+        method: "POST",
         body: JSON.stringify(getAll.result),
         headers: {
           Accept: "application/json, text/plain, */*",
@@ -54,7 +51,7 @@ function checkDatabase() { ///funnels through post in index.js
         return response.json();
       })
       .then(() => {
-        // delete records if successful
+        // Clears stored transactions if successful
         const transaction = db.transaction(["pending"], "readwrite");
         const store = transaction.objectStore("pending");
         store.clear();
@@ -62,5 +59,5 @@ function checkDatabase() { ///funnels through post in index.js
     }
   };
 }
-// listen for app coming back online
+// Checks to see if network is back online
 window.addEventListener("online", checkDatabase);

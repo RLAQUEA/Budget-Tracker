@@ -34,6 +34,7 @@ self.addEventListener("fetch", function(event) {
     );
     return;
   }
+  // Response to request, prevents browser's default fetch handling 
   event.respondWith(
     fetch(event.request).catch(function() {
       return caches.match(event.request).then(function(response) {
