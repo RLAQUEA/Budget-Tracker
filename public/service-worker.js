@@ -1,24 +1,24 @@
-
-var CACHE = "my-site-cache-v1";
+// Sites that will be cached
+var CACHE = "site-cache-v1";
 const DATA_CACHE = "data-cache-v1";
-var urlsToCache = [
+var CACHED_SITES = [
   "/",
   "/db.js",
   "/index.js",
-  "/manifest.json",
+  "/manifest.webmanifest",
   "/styles.css",
 ];
 self.addEventListener("install", function(event) {
-  // Perform install steps
+  // Install
   event.waitUntil(
     caches.open(CACHE).then(function(cache) {
       console.log("Opened cache");
-      return cache.addAll(urlsToCache);
+      return cache.addAll(CACHED_SITES);
     })
   );
 });
 self.addEventListener("fetch", function(event) {
-  // cache all get requests to /api routes
+  // Cache all get requests
   if (event.request.url.includes("/api/")) {
     event.respondWith(
       caches.open(DATA_CACHE).then(cache => {
@@ -28,8 +28,7 @@ self.addEventListener("fetch", function(event) {
             return response;
           })
           .catch(err => {
-            // Network request failed, try to get it from the cache.
-            return cache.match(event.request);
+          return cache.match(event.request);
           });
       }).catch(err => console.log(err))
     );
@@ -41,7 +40,6 @@ self.addEventListener("fetch", function(event) {
         if (response) {
           return response;
         } else if (event.request.headers.get("accept").includes("text/html")) {
-          // return the cached home page for all requests for html pages
           return caches.match("/");
         }
       });
