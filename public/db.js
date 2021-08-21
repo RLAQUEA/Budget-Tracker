@@ -1,5 +1,5 @@
 
-
+// These will help the index to be visible in different browsers
 const indexedDB =
   window.indexedDB ||
   window.mozIndexedDB ||
@@ -18,6 +18,7 @@ indexedDBrequest.onsuccess = ({ target }) => {
     checkDatabase();
   }
 };
+
 indexedDBrequest.onupgradeneeded = ({ target }) => {
   let db = target.result;
   //Represents pending transaction, instance of object store
