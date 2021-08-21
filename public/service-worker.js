@@ -1,48 +1,69 @@
-// Sites that will be cached
-var CACHE = "site-cache-v1";
+const CACHE_NAME = "static-cache-v2";
 const DATA_CACHE = "data-cache-v1";
-var CACHED_SITES = [
+const CACHED_FILES = [
   "/",
-  "/db.js",
-  "/index.js",
+  "/index.html",
   "/manifest.webmanifest",
-  "/styles.css",
+  "/assets/css/style.css",
 ];
-self.addEventListener("install", function(event) {
-  // Install
-  event.waitUntil(
-    caches.open(CACHE).then(function(cache) {
-      console.log("Opened cache");
-      return cache.addAll(CACHED_SITES);
+
+// Install
+self.addEventListener("install", function (evt) {
+  evt.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(CACHED_FILES))
+  );
+
+  // tell the browser to activate this service worker immediately once it
+  // has finished installing
+  self.skipWaiting();
+});
+
+// activate
+self.addEventListener("activate", function(evt) {
+  evt.waitUntil(
+    caches.keys().then(keyList => {
+      return Promise.all(
+        keyList.map(key => {
+          if (key !== CACHE_NAME && key !== DATA_CACHE) {
+            console.log("Removing old cache data", key);
+            return caches.delete(key);
+          }
+        })
+      );
     })
   );
+
+  self.clients.claim();
 });
-self.addEventListener("fetch", function(event) {
-  // Cache all get requests
-  if (event.request.url.includes("/api/")) {
-    event.respondWith(
+
+// fetch
+self.addEventListener("fetch", function(evt) {
+  if (evt.request.url.includes("/api/")) {
+    evt.respondWith(
       caches.open(DATA_CACHE).then(cache => {
-        return fetch(event.request)
+        return fetch(evt.request)
           .then(response => {
-              cache.put(event.request.url, response.clone());
+            // If the response was good, clone it and store it in the cache.
+            if (response.status === 200) {
+              cache.put(evt.request.url, response.clone());
+            }
+
             return response;
           })
           .catch(err => {
-          return cache.match(event.request);
+            // Network request failed, try to get it from the cache.
+            return cache.match(evt.request);
           });
       }).catch(err => console.log(err))
     );
+
     return;
   }
-  // Response to request, prevents browser's default fetch handling 
-  event.respondWith(
-    fetch(event.request).catch(function() {
-      return caches.match(event.request).then(function(response) {
-        if (response) {
-          return response;
-        } else if (event.request.headers.get("accept").includes("text/html")) {
-          return caches.match("/");
-        }
+
+  evt.respondWith(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(evt.request).then(response => {
+        return response || fetch(evt.request);
       });
     })
   );
