@@ -8,7 +8,7 @@ const indexedDB =
   window.shimIndexedDB;
 let db;
 //Opens a new database request & creates a place for it 
-const indexedDBrequest = indexedDB.open("budget", 1);
+const indexedDBrequest = indexedDB.open("Budget-Tracker", 1);
 //Function will run once db is created
 indexedDBrequest.onsuccess = ({ target }) => {
   db = target.result;
