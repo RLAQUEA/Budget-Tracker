@@ -2,9 +2,9 @@ const CACHE_NAME = "static-cache-v2";
 const DATA_CACHE = "data-cache-v1";
 const CACHED_FILES = [
   "/",
-  "/index.html",
-  "/manifest.webmanifest",
-  "/assets/css/style.css",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./assets/css/style.css",
 ];
 
 // Install
